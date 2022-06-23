@@ -1,0 +1,42 @@
+.ol-popup {
+	font-family: 'Roboto', sans-serif;
+
+	display: none;
+	position: absolute;
+	background-color: white;
+	padding: 0;
+	margin: 0;
+	border-radius: 12px;
+	bottom: 12px;
+	left: -50px;
+
+	width: 320px;
+}
+
+.ol-popup div {
+	margin: 0;
+	padding: 0;
+	background-color: white;
+}
+
+.ol-popup-content {
+	margin: 0;
+	padding: 0;
+	border-radius: 12px;
+}
+
+.ol-popup h2 {
+	margin: 10px 0px 0px 10px;
+	padding: 0;
+}
+
+.ol-popup p {
+	margin: 0;
+	padding: 10px;
+}
+
+.popup-img
+{
+	width: 100%;
+	border-radius: 12px 12px 0px 0px;
+} 

@@ -1,4 +1,6 @@
+var map;
 var layers = [];
+var globalExtent;
 
 var sourceMT = new ol.source.TileJSON({
 	url: "https://api.maptiler.com/maps/streets/tiles.json?key=pnJx5OnjEpoxvTM2AEfW",
@@ -65,14 +67,53 @@ addMarker("Hiszpania", 40.3966762615727, -3.7266583550201413, "", "temp1-128.png
 // 				<p>Helsinki – stolica i największe miasto Finlandii oraz regionu Uusimaa. W skład aglomeracji wchodzą: Espoo, Vantaa i Kauniainen. Są głównym ośrodkiem przemysłu, kultury i administracji. Port nad Zatoką Fińską. Uniwersytet założony w 1828 roku. W aglomeracji znajduje się główny fiński port lotniczy Helsinki-Vantaa</p>',
 // });
 
-var map = new ol.Map({
-	target: "map",
-	layers: layers,
-	view: new ol.View({
+function createMap()
+{
+	map = new ol.Map({
+		target: "map",
+		layers: layers,
+		view: new ol.View({
+			center: ol.proj.transform([16, 55], "EPSG:4326", "EPSG:3857"),
+			zoom: 16,
+		}),
+	});
+}
+
+function calculateGlobalExtent() {
+	var tempView = new ol.View({
 		center: ol.proj.transform([16, 55], "EPSG:4326", "EPSG:3857"),
-		zoom: 3.5,
-	}),
-});
+		zoom: 16,
+	});
+
+	globalExtent = tempView.calculateExtent();
+
+	for (let i = 1; i < layers.length; i++) {
+		var layerExtent = layers[i].getSource().getExtent();
+		globalExtent = new ol.extent.extend(globalExtent, layerExtent);
+	}
+}
+
+function restrictAndFitView() {
+	var paddingPercent = 0.125;
+	map.getView().fit(globalExtent, { padding: [map.getSize()[0] * paddingPercent, map.getSize()[1] * paddingPercent, map.getSize()[0] * paddingPercent, map.getSize()[1] * paddingPercent] });
+
+	var newExtent = map.getView().calculateExtent();
+
+	map.setView(
+		new ol.View({
+			center: ol.proj.transform([16, 55], "EPSG:4326", "EPSG:3857"),
+			zoom: 16,
+			extent: newExtent
+		})
+	);
+
+	paddingPercent = 0.05;
+	map.getView().fit(globalExtent, { padding: [map.getSize()[0] * paddingPercent, map.getSize()[1] * paddingPercent, map.getSize()[0] * paddingPercent, map.getSize()[1] * paddingPercent] });
+}
+
+createMap();
+calculateGlobalExtent();
+restrictAndFitView();
 
 var popup = new Popup();
 map.addOverlay(popup);
@@ -90,6 +131,8 @@ map.on("click", function (e) {
 
 	if (clickedOnMarker == false) popup.hide();
 });
+
+//console.log(map.getView().fit(layers[0].getExtent()));
 
 // map.on("pointermove", function (e) {
 // 	var pointerOverFeature = false;
